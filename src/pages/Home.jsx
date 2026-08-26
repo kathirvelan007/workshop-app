@@ -6,7 +6,7 @@ function Home() {
   return (
     <div className="page">
       <div className="home-container">
-        <h1>Workshop Manager</h1>
+        <h1>Prem Workshop</h1>
 
         <p className="subtitle">
           Manage your vehicle repairs easily

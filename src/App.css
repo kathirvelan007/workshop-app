@@ -149,3 +149,105 @@
 .detail-row:last-child {
   border-bottom: none;
 }
+
+/* Navbar CSS */
+
+.navbar {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 24px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.navbar-logo {
+  font-size: 20px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 10px;
+}
+
+.navbar-links button {
+  border: none;
+  background: transparent;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #374151;
+  font-size: 15px;
+}
+
+.navbar-links button:hover {
+  color: #2563eb;
+}
+
+.hamburger {
+  display: none;
+  border: none;
+  background: transparent;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.mobile-menu {
+  display: none;
+}
+
+@media (max-width: 768px) {
+
+  .navbar {
+    padding: 14px 18px;
+  }
+
+  /* Hide desktop menu */
+  .navbar-links {
+    display: none;
+  }
+
+  /* Show hamburger */
+  .hamburger {
+    display: block;
+  }
+
+  /* Mobile menu */
+  .mobile-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+
+    padding: 10px 0;
+
+    z-index: 1000;
+  }
+
+  .mobile-menu button {
+    width: 100%;
+    padding: 14px 20px;
+
+    border: none;
+    background: white;
+
+    text-align: left;
+    font-size: 16px;
+
+    cursor: pointer;
+  }
+
+  .mobile-menu button:hover {
+    background: #f3f4f6;
+  }
+}
+
+/* NavBar CSS Ends */
