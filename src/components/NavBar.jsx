@@ -62,6 +62,10 @@ function Navbar() {
             Get Issue
           </button>
 
+          <button onClick={() => handleNavigation('/all-issues')}>
+            All Issues
+          </button>
+
         </div>
       )}
 

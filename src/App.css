@@ -158,7 +158,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 15px 24px;
-  background: white;
+  background: #1d4ed8;
+  color: white;
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -178,12 +179,12 @@
   background: transparent;
   padding: 8px 12px;
   cursor: pointer;
-  color: #374151;
+  color: whitesmoke;
   font-size: 15px;
 }
 
 .navbar-links button:hover {
-  color: #2563eb;
+  color: black;
 }
 
 .hamburger {
@@ -212,6 +213,7 @@
   /* Show hamburger */
   .hamburger {
     display: block;
+    color: white;
   }
 
   /* Mobile menu */
@@ -224,7 +226,7 @@
     display: flex;
     flex-direction: column;
 
-    background: white;
+    background: #1d4ed8;
     border-bottom: 1px solid #e5e7eb;
 
     padding: 10px 0;
@@ -237,8 +239,8 @@
     padding: 14px 20px;
 
     border: none;
-    background: white;
-
+    background: #1d4ed8;
+    color: whitesmoke;
     text-align: left;
     font-size: 16px;
 
@@ -246,8 +248,80 @@
   }
 
   .mobile-menu button:hover {
-    background: #f3f4f6;
+    background: black;
   }
 }
 
 /* NavBar CSS Ends */
+
+
+/* All Issues Page CSS */
+
+.issues-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.page-header h1 {
+  margin-bottom: 5px;
+}
+
+.add-repair-button {
+  width: auto;
+  margin: 0;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.issues-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.issues-table th,
+.issues-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.issues-table th {
+  background: #f8fafc;
+  font-weight: 600;
+}
+
+.issues-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  background: white;
+  border-radius: 12px;
+}
+
+.empty-state h2 {
+  margin-bottom: 10px;
+}
+
+.empty-state p {
+  color: #6b7280;
+  margin-bottom: 25px;
+}
+
+/* All Issues Page CSS */

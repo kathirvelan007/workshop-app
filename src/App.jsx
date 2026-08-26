@@ -3,6 +3,7 @@ import Home from './pages/Home'
 import NewRepair from './pages/NewRepair'
 import GetIssue from './pages/GetIssue'
 import Navbar from './components/NavBar'
+import AllIssues from './pages/AllIssues'
 import './App.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/new-repair" element={<NewRepair />} />
         <Route path="/get-issue" element={<GetIssue />} />
+        <Route path="/all-issues" element={<AllIssues />} />
       </Routes>
     </BrowserRouter>
   )

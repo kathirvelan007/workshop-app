@@ -26,6 +26,13 @@ function Home() {
           Get Issue
         </button>
 
+        <button
+          className="secondary-button"
+          onClick={() => navigate('/all-issues')}
+        >
+          All Issues
+        </button>
+
       </div>
     </div>
   )
