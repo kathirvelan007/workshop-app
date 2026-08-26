@@ -5,7 +5,7 @@ import GetIssue from './pages/GetIssue'
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/workshop-app">
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/new-repair" element={<NewRepair />} />
