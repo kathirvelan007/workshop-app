@@ -1,0 +1,151 @@
+.page {
+  min-height: 100vh;
+  padding: 24px 16px;
+}
+
+.home-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  padding-top: 80px;
+  text-align: center;
+}
+
+.home-container h1 {
+  margin-bottom: 12px;
+  font-size: 2rem;
+}
+
+.subtitle {
+  margin-bottom: 32px;
+  color: #6b7280;
+}
+
+.primary-button {
+  border: none;
+  border-radius: 8px;
+  padding: 13px 24px;
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.primary-button:hover {
+  background: #1d4ed8;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.form-container h1 {
+  margin: 20px 0 28px;
+}
+
+.back-button {
+  border: none;
+  background: transparent;
+  padding: 0;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 12px;
+  background: white;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #2563eb;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.full-width {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .page {
+    padding: 40px 24px;
+  }
+
+  .home-container {
+    padding-top: 120px;
+  }
+
+  .home-container h1 {
+    font-size: 2.5rem;
+  }
+}
+
+.secondary-button {
+  display: block;
+  width: 100%;
+  max-width: 250px;
+  margin: 12px auto 0;
+  padding: 13px 24px;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  background: white;
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.secondary-button:hover {
+  background: #eff6ff;
+}
+
+.error-message {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.repair-details {
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: 10px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.repair-details h2 {
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
