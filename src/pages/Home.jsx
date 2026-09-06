@@ -64,6 +64,22 @@ function Home() {
             All Issues
           </button>
 
+            
+          <button
+            onClick={() =>
+              navigate('/delivery-vehicles')
+            }
+          >
+            Delivery Vehicles
+          </button>
+
+          
+          <button
+            onClick={() => navigate('/analyze')}
+          >
+            Analyze
+          </button>
+
         </div>
 
 
@@ -119,7 +135,8 @@ function Home() {
 
           </div>
 
-        )}
+        )
+        }
 
       </div>
 

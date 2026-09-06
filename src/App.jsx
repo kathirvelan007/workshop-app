@@ -6,6 +6,8 @@ import GetIssue from './pages/GetIssue'
 import AllIssues from './pages/AllIssues'
 import DeliveryRepair from './pages/DeliveryRepair'
 import Receipt from './pages/Receipt'
+import DeliveryVehicle from './pages/DeliveryVehicle'
+import Analyze from './pages/Analyze'
 
 import Navbar from './components/NavBar'
 
@@ -49,6 +51,16 @@ function App() {
         <Route
           path="/receipt/:id"
           element={<Receipt />}
+        />
+
+        <Route
+          path="/delivery-vehicles"
+          element={<DeliveryVehicle />}
+        />
+
+        <Route
+          path="/analyze"
+          element={<Analyze />}
         />
 
       </Routes>

@@ -1,24 +1,49 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
+  useLocation,
   useNavigate,
   useParams,
 } from 'react-router-dom'
 
 import { db } from '../db/database'
 
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+
 
 function Receipt() {
   const { id } = useParams()
 
   const navigate = useNavigate()
+  const location = useLocation()
+
+  const receiptRef = useRef(null)
 
   const [repair, setRepair] =
     useState(null)
 
+  const [sharing, setSharing] =
+    useState(false)
+
 
   useEffect(() => {
     loadRepair()
-  }, [])
+  }, [id])
+
+
+  useEffect(() => {
+    /*
+      If DeliveryRepair opened Receipt
+      specifically for WhatsApp sharing,
+      automatically start sharing.
+    */
+    if (
+      repair &&
+      location.state?.autoShareWhatsApp
+    ) {
+      sharePdfToWhatsApp()
+    }
+  }, [repair, location.state])
 
 
   const loadRepair = async () => {
@@ -42,10 +67,228 @@ function Receipt() {
   }
 
 
+  const createPdf = async () => {
+    if (!receiptRef.current) {
+      return null
+    }
+
+    const canvas =
+      await html2canvas(
+        receiptRef.current,
+        {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+        }
+      )
+
+    const imageData =
+      canvas.toDataURL('image/png')
+
+    const pdf =
+      new jsPDF(
+        'p',
+        'mm',
+        'a4'
+      )
+
+    const pageWidth =
+      pdf.internal.pageSize.getWidth()
+
+    const pageHeight =
+      pdf.internal.pageSize.getHeight()
+
+    const imageWidth =
+      pageWidth - 20
+
+    const imageHeight =
+      (
+        canvas.height *
+        imageWidth
+      ) / canvas.width
+
+    let heightLeft =
+      imageHeight
+
+    let position = 10
+
+    pdf.addImage(
+      imageData,
+      'PNG',
+      10,
+      position,
+      imageWidth,
+      imageHeight
+    )
+
+    heightLeft -=
+      pageHeight - 20
+
+    while (heightLeft > 0) {
+
+      position =
+        heightLeft -
+        imageHeight +
+        10
+
+      pdf.addPage()
+
+      pdf.addImage(
+        imageData,
+        'PNG',
+        10,
+        position,
+        imageWidth,
+        imageHeight
+      )
+
+      heightLeft -=
+        pageHeight - 20
+    }
+
+    return pdf
+  }
+
+
+  const sharePdfToWhatsApp = async () => {
+    if (sharing) {
+      return
+    }
+
+    try {
+
+      setSharing(true)
+
+      const pdf =
+        await createPdf()
+
+      if (!pdf) {
+        alert(
+          'Unable to create PDF.'
+        )
+
+        return
+      }
+
+
+      const pdfBlob =
+        pdf.output('blob')
+
+
+      const fileName =
+        `Workshop-Receipt-${repair.id}.pdf`
+
+
+      const pdfFile =
+        new File(
+          [pdfBlob],
+          fileName,
+          {
+            type: 'application/pdf',
+          }
+        )
+
+
+      /*
+        Best option:
+        Use native Web Share API when the
+        browser supports sharing files.
+      */
+
+      if (
+        navigator.share &&
+        navigator.canShare &&
+        navigator.canShare({
+          files: [pdfFile],
+        })
+      ) {
+
+        await navigator.share({
+          title:
+            `Workshop Receipt #${repair.id}`,
+
+          text:
+            `Workshop receipt for ${repair.bikeNumber}`,
+
+          files: [pdfFile],
+        })
+
+        return
+      }
+
+
+      /*
+        Fallback:
+        Download the PDF and open WhatsApp
+        with a prepared message.
+
+        The browser cannot directly attach
+        a locally generated PDF to WhatsApp
+        using a normal WhatsApp URL.
+      */
+
+      pdf.save(fileName)
+
+
+      const message =
+        `Workshop Receipt #${repair.id}%0A` +
+        `Vehicle: ${repair.bikeNumber}%0A` +
+        `Amount: ₹${repair.finalAmount || 0}%0A` +
+        `Pending Amount: ₹${repair.pendingAmount || 0}`
+
+
+      window.open(
+        `https://wa.me/?text=${message}`,
+        '_blank'
+      )
+
+    } catch (error) {
+
+      /*
+        User cancelled the native share dialog.
+        Don't show an error in that case.
+      */
+
+      if (
+        error?.name !==
+        'AbortError'
+      ) {
+        console.error(
+          'PDF sharing failed:',
+          error
+        )
+
+        alert(
+          'Unable to share the PDF. The PDF will be downloaded instead.'
+        )
+      }
+
+    } finally {
+
+      setSharing(false)
+
+    }
+  }
+
+
+  const handleBack = () => {
+    navigate(
+      `/delivery/${id}`,
+      {
+        state: {
+          openDeliveryPopup: true,
+        },
+      }
+    )
+  }
+
+
   if (!repair) {
     return (
       <div className="page">
-        <h2>Loading receipt...</h2>
+        <h2>
+          Loading receipt...
+        </h2>
       </div>
     )
   }
@@ -54,7 +297,10 @@ function Receipt() {
   return (
     <div className="page receipt-page">
 
-      <div className="receipt-container">
+      <div
+        className="receipt-container"
+        ref={receiptRef}
+      >
 
         {/* HEADER */}
 
@@ -86,27 +332,34 @@ function Receipt() {
             Customer Details
           </h2>
 
-
           <div className="receipt-grid">
 
             <ReceiptItem
               label="Customer Name"
-              value={repair.customerName}
+              value={
+                repair.customerName
+              }
             />
 
             <ReceiptItem
               label="Mobile Number"
-              value={repair.mobileNumber}
+              value={
+                repair.mobileNumber
+              }
             />
 
             <ReceiptItem
               label="Vehicle Number"
-              value={repair.bikeNumber}
+              value={
+                repair.bikeNumber
+              }
             />
 
             <ReceiptItem
               label="Vehicle Model"
-              value={repair.bikeModel}
+              value={
+                repair.bikeModel
+              }
             />
 
           </div>
@@ -122,7 +375,6 @@ function Receipt() {
             Work Details
           </h2>
 
-
           <ReceiptItem
             label="Work Required"
             value={
@@ -132,12 +384,13 @@ function Receipt() {
             }
           />
 
-
           {repair.otherWork && (
 
             <ReceiptItem
               label="Other Work"
-              value={repair.otherWork}
+              value={
+                repair.otherWork
+              }
             />
 
           )}
@@ -153,11 +406,14 @@ function Receipt() {
             Customer Complaints
           </h2>
 
-
           <ul className="receipt-complaints">
 
             {repair.complaints
               ?.split(' || ')
+              .filter(
+                (complaint) =>
+                  complaint.trim() !== ''
+              )
               .map(
                 (
                   complaint,
@@ -214,7 +470,7 @@ function Receipt() {
           <div className="receipt-cost-row total-row">
 
             <span>
-              Final Amount
+              Total Amount
             </span>
 
             <strong>
@@ -237,17 +493,73 @@ function Receipt() {
           </div>
 
 
-          <div className="receipt-cost-row final-payment-row">
+          <div className="receipt-cost-row">
 
             <span>
-              Amount Paid Now
+              Advance Payment Date
             </span>
 
             <strong>
-              ₹ {repair.finalPaid || 0}
+              {repair.advanceDate || '-'}
             </strong>
 
           </div>
+
+
+          <div className="receipt-cost-row">
+
+            <span>
+              Advance Payment Mode
+            </span>
+
+            <strong>
+              {repair.advancePaymentMode || '-'}
+            </strong>
+
+          </div>
+
+
+          <div className="receipt-cost-row">
+
+            <span>
+              Discount
+            </span>
+
+            <strong>
+              ₹ {repair.discountAmount || 0}
+            </strong>
+
+          </div>
+
+
+          <div className="receipt-cost-row final-payment-row">
+
+            <span>
+              Pending Amount
+            </span>
+
+            <strong>
+              ₹ {repair.pendingAmount || 0}
+            </strong>
+
+          </div>
+
+
+          {repair.advanceNotes && (
+
+            <div className="receipt-cost-row">
+
+              <span>
+                Advance Notes
+              </span>
+
+              <strong>
+                {repair.advanceNotes}
+              </strong>
+
+            </div>
+
+          )}
 
         </section>
 
@@ -259,7 +571,6 @@ function Receipt() {
           <h2>
             Delivery Details
           </h2>
-
 
           <div className="receipt-grid">
 
@@ -278,13 +589,6 @@ function Receipt() {
             />
 
             <ReceiptItem
-              label="Payment Mode"
-              value={
-                repair.paymentMode
-              }
-            />
-
-            <ReceiptItem
               label="Status"
               value={
                 repair.status
@@ -292,6 +596,18 @@ function Receipt() {
             />
 
           </div>
+
+
+          {repair.deliveryNotes && (
+
+            <ReceiptItem
+              label="Delivery Notes"
+              value={
+                repair.deliveryNotes
+              }
+            />
+
+          )}
 
         </section>
 
@@ -317,11 +633,9 @@ function Receipt() {
 
           <button
             className="secondary-button"
-            onClick={() =>
-              navigate('/')
-            }
+            onClick={handleBack}
           >
-            Back to Home
+            Back to Delivery
           </button>
 
 
@@ -330,6 +644,19 @@ function Receipt() {
             onClick={handlePrint}
           >
             Print / Save as PDF
+          </button>
+
+
+          <button
+            className="whatsapp-button"
+            onClick={
+              sharePdfToWhatsApp
+            }
+            disabled={sharing}
+          >
+            {sharing
+              ? 'Preparing PDF...'
+              : 'Share PDF via WhatsApp'}
           </button>
 
         </div>

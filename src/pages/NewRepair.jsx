@@ -5,6 +5,10 @@ import { db } from '../db/database'
 function NewRepair() {
   const navigate = useNavigate()
 
+  const getToday = () => {
+    return new Date().toISOString().split('T')[0]
+  }
+
   const [formData, setFormData] = useState({
     customerName: '',
     mobileNumber: '',
@@ -31,6 +35,9 @@ function NewRepair() {
     additionalLabour: '',
 
     advanceAmount: '',
+    advanceDate: getToday(),
+    advancePaymentMode: '',
+    advanceNotes: '',
   })
 
   const handleChange = (event) => {
@@ -135,6 +142,32 @@ function NewRepair() {
   const handleSubmit = async (event) => {
     event.preventDefault()
 
+    const advance =
+      Number(formData.advanceAmount) || 0
+
+    // Validate advance payment details
+    if (advance > 0) {
+      if (!formData.advanceDate) {
+        alert('Please select the advance payment date.')
+        return
+      }
+
+      if (!formData.advancePaymentMode) {
+        alert('Please select the advance payment mode.')
+        return
+      }
+    }
+
+    // Prevent advance from being greater than estimated amount
+    const totalEstimate = calculateTotalEstimate()
+
+    if (advance > totalEstimate) {
+      alert(
+        'Advance amount cannot be greater than the total estimated amount.'
+      )
+      return
+    }
+
     const filteredComplaints =
       formData.complaints
         .map((complaint) =>
@@ -169,12 +202,14 @@ function NewRepair() {
       remainingEstimatedAmount:
         calculateRemainingAmount(),
 
+      // Delivery / final payment details
       deliveryDate: '',
       deliveredBy: '',
       finalAmount: '',
       finalAmountAfterAdvance: '',
       finalPaid: '',
       paymentMode: '',
+      completedDate: '',
     }
 
     await db.repairs.add(repairData)
@@ -572,6 +607,8 @@ function NewRepair() {
                 </strong>
               </div>
 
+              {/* ADVANCE AMOUNT */}
+
               <div className="form-group">
                 <label>
                   Advance Amount
@@ -583,8 +620,119 @@ function NewRepair() {
                   value={formData.advanceAmount}
                   onChange={handleChange}
                   min="0"
+                  max={calculateTotalEstimate()}
                 />
               </div>
+
+              {/* ADVANCE DATE */}
+
+              <div className="form-group">
+                <label>
+                  Advance Date
+                  {Number(formData.advanceAmount) > 0 && ' *'}
+                </label>
+
+                <input
+                  type="date"
+                  name="advanceDate"
+                  value={formData.advanceDate}
+                  onChange={handleChange}
+                  disabled={
+                    Number(formData.advanceAmount) <= 0
+                  }
+                  required={
+                    Number(formData.advanceAmount) > 0
+                  }
+                />
+              </div>
+
+              {/* ADVANCE PAYMENT MODE */}
+
+              <div className="form-group">
+                <label>
+                  Advance Payment Mode
+                  {Number(formData.advanceAmount) > 0 && ' *'}
+                </label>
+
+                <div className="payment-mode-options">
+
+                  <label className="radio-item">
+                    <input
+                      type="radio"
+                      name="advancePaymentMode"
+                      value="Cash"
+                      checked={
+                        formData.advancePaymentMode ===
+                        'Cash'
+                      }
+                      onChange={handleChange}
+                      disabled={
+                        Number(formData.advanceAmount) <= 0
+                      }
+                    />
+
+                    Cash
+                  </label>
+
+                  <label className="radio-item">
+                    <input
+                      type="radio"
+                      name="advancePaymentMode"
+                      value="UPI"
+                      checked={
+                        formData.advancePaymentMode ===
+                        'UPI'
+                      }
+                      onChange={handleChange}
+                      disabled={
+                        Number(formData.advanceAmount) <= 0
+                      }
+                    />
+
+                    UPI / GPay
+                  </label>
+
+                  <label className="radio-item">
+                    <input
+                      type="radio"
+                      name="advancePaymentMode"
+                      value="Card"
+                      checked={
+                        formData.advancePaymentMode ===
+                        'Card'
+                      }
+                      onChange={handleChange}
+                      disabled={
+                        Number(formData.advanceAmount) <= 0
+                      }
+                    />
+
+                    Card
+                  </label>
+
+                </div>
+              </div>
+
+              {/* ADVANCE NOTES */}
+
+              <div className="form-group">
+                <label>
+                  Advance Payment Notes
+                </label>
+
+                <input
+                  type="text"
+                  name="advanceNotes"
+                  value={formData.advanceNotes}
+                  onChange={handleChange}
+                  placeholder="Optional"
+                  disabled={
+                    Number(formData.advanceAmount) <= 0
+                  }
+                />
+              </div>
+
+              {/* REMAINING AMOUNT */}
 
               <div>
                 <span>
