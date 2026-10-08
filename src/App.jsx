@@ -8,6 +8,8 @@ import DeliveryRepair from './pages/DeliveryRepair'
 import Receipt from './pages/Receipt'
 import DeliveryVehicle from './pages/DeliveryVehicle'
 import Analyze from './pages/Analyze'
+import PendingPayments from './pages/PendingPayments'
+import Backup from './pages/Backup'
 
 import Navbar from './components/NavBar'
 
@@ -56,6 +58,16 @@ function App() {
         <Route
           path="/delivery-vehicles"
           element={<DeliveryVehicle />}
+        />
+
+        <Route
+          path="/pending-payments"
+          element={<PendingPayments />}
+        />
+
+        <Route
+          path="/backup"
+          element={<Backup />}
         />
 
         <Route

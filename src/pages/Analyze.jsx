@@ -41,13 +41,6 @@ function Analyze() {
   const [deliveredVehicles, setDeliveredVehicles] = useState([])
   const [advancePayments, setAdvancePayments] = useState([])
 
-  useEffect(() => {
-    loadRepairs()
-  }, [])
-
-  useEffect(() => {
-    analyzeData()
-  }, [fromDate, toDate, allRepairs])
 
   const loadRepairs = async () => {
     try {
@@ -210,13 +203,30 @@ function Analyze() {
       )
 
     // ---------------------------------------
-    // Total Money Collected
-    //
-    // Advance + Final Payment
+    // Pending Settlements Collected in Period
     // ---------------------------------------
+    let pendingSettlements = []
+    allRepairs.forEach((r) => {
+      if (Array.isArray(r.paymentHistory)) {
+        r.paymentHistory.forEach((p) => {
+          if (p.type === 'PENDING_SETTLEMENT' && isDateInRange(p.date)) {
+            pendingSettlements.push({ ...p, repair: r })
+          }
+        })
+      }
+    })
 
+    const totalPendingCollected = pendingSettlements.reduce(
+      (sum, p) => sum + (Number(p.amount) || 0),
+      0
+    )
+
+    // ---------------------------------------
+    // Total Money Collected
+    // Advance + Final Payment + Pending Settlements
+    // ---------------------------------------
     const totalCollected =
-      totalAdvance + totalEarned
+      totalAdvance + totalEarned + totalPendingCollected
 
     // ---------------------------------------
     // Average Final Bill
@@ -337,18 +347,21 @@ function Analyze() {
 
     // ---------------------------------------
     // TOTAL PAYMENT MODE
-    //
-    // Advance + Final
-    // ---------------------------------------
+    const pendingCash = pendingSettlements
+      .filter((p) => p.mode === 'Cash')
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
 
-    const cash =
-      advanceCash + finalCash
+    const pendingUpi = pendingSettlements
+      .filter((p) => p.mode === 'UPI' || p.mode === 'UPI/GPay')
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
 
-    const upi =
-      advanceUpi + finalUpi
+    const pendingCard = pendingSettlements
+      .filter((p) => p.mode === 'Card')
+      .reduce((sum, p) => sum + (Number(p.amount) || 0), 0)
 
-    const card =
-      advanceCard + finalCard
+    const cash = advanceCash + finalCash + pendingCash
+    const upi = advanceUpi + finalUpi + pendingUpi
+    const card = advanceCard + finalCard + pendingCard
 
     // ---------------------------------------
     // Update Summary
@@ -382,6 +395,14 @@ function Analyze() {
     setDeliveredVehicles(delivered)
     setAdvancePayments(advancePaymentRecords)
   }
+
+  useEffect(() => {
+    loadRepairs()
+  }, [])
+
+  useEffect(() => {
+    analyzeData()
+  }, [fromDate, toDate, allRepairs])
 
   const formatCurrency = (amount) => {
     return `₹${Number(
