@@ -37,7 +37,7 @@ function Backup() {
       const allRecords = await db.repairs.toArray()
 
       const backupObject = {
-        application: 'Prem Workshop OS',
+        application: 'Raja Two Wheeler Garage OS',
         version: '1.0',
         exportedAt: new Date().toISOString(),
         totalRecords: allRecords.length,

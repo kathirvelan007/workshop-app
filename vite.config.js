@@ -12,11 +12,11 @@ export default defineConfig({
       registerType: 'autoUpdate',
 
       manifest: {
-        name: 'Workshop Manager',
-        short_name: 'Workshop',
-        description: 'Vehicle repair management application',
-        theme_color: '#2563eb',
-        background_color: '#ffffff',
+        name: 'Raja Two Wheeler Garage - Since 1985',
+        short_name: 'Raja Garage',
+        description: 'Two Wheeler Service, Modified & Lath Works since 1985',
+        theme_color: '#dc2626',
+        background_color: '#0c0d14',
         display: 'standalone',
         start_url: '/workshop-app/',
 

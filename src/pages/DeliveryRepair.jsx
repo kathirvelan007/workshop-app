@@ -858,9 +858,10 @@ function DeliveryRepair() {
                       <input
                         type="text"
                         name="deliveredBy"
-                        placeholder="e.g. Prem / Staff name"
+                        placeholder="e.g. Raja / Staff name"
                         value={formData.deliveredBy}
                         onChange={handleChange}
+                        maxLength={50}
                         disabled={isDelivered}
                       />
                     </div>
@@ -963,6 +964,7 @@ function DeliveryRepair() {
                       value={formData.deliveryNotes}
                       onChange={handleChange}
                       disabled={isDelivered}
+                      maxLength={250}
                       rows="2"
                     />
                   </div>

@@ -71,20 +71,32 @@ function Home() {
               <span className="hero-pill-dot"></span>
               <span>LIVE WORKSHOP BAY</span>
             </div>
-            <h1 className="hero-title">Prem Workshop Operations</h1>
+            <h1 className="hero-title">Raja Two Wheeler Garage</h1>
             <p className="hero-subtitle">
-              Manage end-to-end vehicle service lifecycle, quick estimates, advance payments & deliveries.
+              SINCE 1985 • SERVICE • MODIFIED • LATH WORKS — Complete vehicle service lifecycle, estimates, and customer billing.
             </p>
           </div>
-          <div className="hero-meta">
-            <div className="meta-badge date-badge">
-              <span className="meta-label">TODAY</span>
-              <strong className="meta-value">{todayFormatted}</strong>
+          <div className="hero-action-panel">
+            <div className="hero-meta">
+              <div className="meta-badge date-badge">
+                <span className="meta-label">TODAY</span>
+                <strong className="meta-value">{todayFormatted}</strong>
+              </div>
+              <div className="meta-badge storage-badge">
+                <span className="meta-label">WORKSHOP STATUS</span>
+                <strong className="meta-value">Ready for Service</strong>
+              </div>
             </div>
-            <div className="meta-badge storage-badge">
-              <span className="meta-label">WORKSHOP STATUS</span>
-              <strong className="meta-value">Ready for Service</strong>
-            </div>
+
+            <button
+              className="btn-hero-new-job"
+              onClick={() => navigate('/new-repair')}
+              title="Create a new vehicle repair job card"
+            >
+              <span className="btn-hero-icon">➕</span>
+              <span className="btn-hero-text">Create New Job Card</span>
+              <span className="btn-hero-arrow">&rarr;</span>
+            </button>
           </div>
         </header>
 

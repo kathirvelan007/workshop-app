@@ -389,9 +389,10 @@ function PendingPayments() {
                         <label>Payment Notes / Staff</label>
                         <input
                           type="text"
-                          placeholder="e.g. Collected by Prem"
+                          placeholder="e.g. Collected by Raja / Staff"
                           value={paymentNotes}
                           onChange={(e) => setPaymentNotes(e.target.value)}
+                          maxLength={100}
                         />
                       </div>
                     </div>

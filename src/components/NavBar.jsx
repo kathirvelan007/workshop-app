@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { db } from '../db/database'
+import RajaLogo from './RajaLogo'
 
 function Navbar() {
   const navigate = useNavigate()
@@ -9,13 +10,17 @@ function Navbar() {
   const [pendingCount, setPendingCount] = useState(0)
   const [pendingDuesCount, setPendingDuesCount] = useState(0)
 
+  const [toolsOpen, setToolsOpen] = useState(false)
+  const dropdownRef = useRef(null)
+
+  // Real-time counter of active repair jobs & post-delivery pending dues
   const loadCounts = async () => {
     try {
       const all = await db.repairs.toArray()
       setPendingCount(all.filter((r) => r.status === 'IN_PROGRESS').length)
       setPendingDuesCount(all.filter((r) => (Number(r.pendingAmount) || 0) > 0).length)
     } catch (e) {
-      console.error(e)
+      console.error('Failed to load navigation counters:', e)
     }
   }
 
@@ -25,9 +30,21 @@ function Navbar() {
     return () => clearInterval(interval)
   }, [location.pathname])
 
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setToolsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleNavigation = (path) => {
     navigate(path)
     setMenuOpen(false)
+    setToolsOpen(false)
   }
 
   const isActive = (path) => {
@@ -36,28 +53,22 @@ function Navbar() {
     return false
   }
 
+  const isToolsActive = isActive('/analyze') || isActive('/backup')
+
   return (
     <nav className="navbar">
       <div className="navbar-container">
-        {/* Brand / Logo */}
+        {/* Brand / Logo - Raja Two Wheeler Garage Since 1985 */}
         <div
           className="navbar-brand"
           onClick={() => handleNavigation('/')}
           role="button"
           tabIndex={0}
         >
-          <div className="brand-icon">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
-            </svg>
-          </div>
-          <div className="brand-text">
-            <span className="brand-name">PREM WORKSHOP</span>
-            <span className="brand-badge">GARAGE</span>
-          </div>
+          <RajaLogo size="sm" showTagline={true} />
         </div>
 
-        {/* Desktop Links */}
+        {/* Desktop Navigation Links */}
         <div className="navbar-links">
           <button
             className={`nav-link ${isActive('/') ? 'active' : ''}`}
@@ -65,14 +76,6 @@ function Navbar() {
           >
             <span className="nav-icon">📊</span>
             <span>Dashboard</span>
-          </button>
-
-          <button
-            className={`nav-link ${isActive('/new-repair') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/new-repair')}
-          >
-            <span className="nav-icon">➕</span>
-            <span>New Job Card</span>
           </button>
 
           <button
@@ -113,21 +116,47 @@ function Navbar() {
             <span>Lookup</span>
           </button>
 
-          <button
-            className={`nav-link ${isActive('/analyze') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/analyze')}
-          >
-            <span className="nav-icon">📈</span>
-            <span>Analytics</span>
-          </button>
+          {/* Tools & Settings Dropdown */}
+          <div className="nav-dropdown-wrapper" ref={dropdownRef}>
+            <button
+              className={`nav-link dropdown-toggle ${isToolsActive ? 'active' : ''} ${toolsOpen ? 'open' : ''}`}
+              onClick={() => setToolsOpen(!toolsOpen)}
+              aria-expanded={toolsOpen}
+              aria-haspopup="true"
+            >
+              <span className="nav-icon">⚙️</span>
+              <span>Tools</span>
+              <span className="dropdown-caret">{toolsOpen ? '▲' : '▼'}</span>
+            </button>
 
-          <button
-            className={`nav-link ${isActive('/backup') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/backup')}
-          >
-            <span className="nav-icon">💾</span>
-            <span>Backup</span>
-          </button>
+            {toolsOpen && (
+              <div className="nav-dropdown-menu">
+                <button
+                  className={`dropdown-menu-item ${isActive('/analyze') ? 'active' : ''}`}
+                  onClick={() => handleNavigation('/analyze')}
+                >
+                  <span className="dropdown-item-icon">📈</span>
+                  <div className="dropdown-item-content">
+                    <span className="dropdown-item-title">Analytics & Reports</span>
+                    <span className="dropdown-item-sub">Revenue, jobs & service trends</span>
+                  </div>
+                </button>
+
+                <div className="dropdown-divider" />
+
+                <button
+                  className={`dropdown-menu-item ${isActive('/backup') ? 'active' : ''}`}
+                  onClick={() => handleNavigation('/backup')}
+                >
+                  <span className="dropdown-item-icon">💾</span>
+                  <div className="dropdown-item-content">
+                    <span className="dropdown-item-title">Backup & Restore</span>
+                    <span className="dropdown-item-sub">Export or import garage database</span>
+                  </div>
+                </button>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Status Badge & Mobile Trigger */}
@@ -150,70 +179,76 @@ function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Menu */}
       {menuOpen && (
         <div className="mobile-menu">
-          <button
-            className={`mobile-nav-link ${isActive('/') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/')}
-          >
-            <span>📊 Dashboard</span>
-          </button>
+          <div className="mobile-menu-brand-header">
+            <RajaLogo size="md" showTagline={true} />
+          </div>
 
-          <button
-            className={`mobile-nav-link ${isActive('/new-repair') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/new-repair')}
-          >
-            <span>➕ New Job Card</span>
-          </button>
+          <div className="mobile-menu-links">
+            <button
+              className={`mobile-nav-link ${isActive('/') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/')}
+            >
+              <span>📊 Dashboard</span>
+            </button>
 
-          <button
-            className={`mobile-nav-link ${isActive('/delivery-vehicles') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/delivery-vehicles')}
-          >
-            <span>🚚 Delivery Bay</span>
-            {pendingCount > 0 && (
-              <span className="nav-badge-pill">{pendingCount}</span>
-            )}
-          </button>
+            <button
+              className={`mobile-nav-link ${isActive('/new-repair') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/new-repair')}
+            >
+              <span>➕ New Job Card</span>
+            </button>
 
-          <button
-            className={`mobile-nav-link ${isActive('/pending-payments') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/pending-payments')}
-          >
-            <span>💳 Pending Dues</span>
-            {pendingDuesCount > 0 && (
-              <span className="nav-badge-pill due">{pendingDuesCount}</span>
-            )}
-          </button>
+            <button
+              className={`mobile-nav-link ${isActive('/delivery-vehicles') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/delivery-vehicles')}
+            >
+              <span>🚚 Delivery Bay</span>
+              {pendingCount > 0 && (
+                <span className="nav-badge-pill">{pendingCount}</span>
+              )}
+            </button>
 
-          <button
-            className={`mobile-nav-link ${isActive('/all-issues') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/all-issues')}
-          >
-            <span>📋 All Records</span>
-          </button>
+            <button
+              className={`mobile-nav-link ${isActive('/pending-payments') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/pending-payments')}
+            >
+              <span>💳 Pending Dues</span>
+              {pendingDuesCount > 0 && (
+                <span className="nav-badge-pill due">{pendingDuesCount}</span>
+              )}
+            </button>
 
-          <button
-            className={`mobile-nav-link ${isActive('/get-issue') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/get-issue')}
-          >
-            <span>🔍 Vehicle & Customer Lookup</span>
-          </button>
+            <button
+              className={`mobile-nav-link ${isActive('/all-issues') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/all-issues')}
+            >
+              <span>📋 All Records</span>
+            </button>
 
-          <button
-            className={`mobile-nav-link ${isActive('/analyze') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/analyze')}
-          >
-            <span>📈 Analytics & Reports</span>
-          </button>
+            <button
+              className={`mobile-nav-link ${isActive('/get-issue') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/get-issue')}
+            >
+              <span>🔍 Vehicle & Customer Lookup</span>
+            </button>
 
-          <button
-            className={`mobile-nav-link ${isActive('/backup') ? 'active' : ''}`}
-            onClick={() => handleNavigation('/backup')}
-          >
-            <span>💾 Backup & Restore Data</span>
-          </button>
+            <button
+              className={`mobile-nav-link ${isActive('/analyze') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/analyze')}
+            >
+              <span>📈 Analytics & Reports</span>
+            </button>
+
+            <button
+              className={`mobile-nav-link ${isActive('/backup') ? 'active' : ''}`}
+              onClick={() => handleNavigation('/backup')}
+            >
+              <span>💾 Backup & Restore Data</span>
+            </button>
+          </div>
         </div>
       )}
     </nav>

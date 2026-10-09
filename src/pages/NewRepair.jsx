@@ -93,10 +93,29 @@ function NewRepair() {
     }))
   }
 
+  // Sanitize mobile input: digits only, maximum 10 digits
+  const handleMobileChange = (event) => {
+    const digitsOnly = event.target.value.replace(/\D/g, '').slice(0, 10)
+    setFormData((prev) => ({
+      ...prev,
+      mobileNumber: digitsOnly,
+    }))
+  }
+
+  // Vehicle registration plate: auto uppercase, maximum 13 chars
   const handleBikeNumberChange = (event) => {
     setFormData((prev) => ({
       ...prev,
-      bikeNumber: event.target.value.toUpperCase(),
+      bikeNumber: event.target.value.toUpperCase().slice(0, 13),
+    }))
+  }
+
+  // Odometer reading: positive digits only, maximum 7 digits
+  const handleOdoMeterChange = (event) => {
+    const digitsOnly = event.target.value.replace(/\D/g, '').slice(0, 7)
+    setFormData((prev) => ({
+      ...prev,
+      odoMeter: digitsOnly,
     }))
   }
 
@@ -336,6 +355,7 @@ function NewRepair() {
                     placeholder="Enter customer full name"
                     value={formData.customerName}
                     onChange={handleChange}
+                    maxLength={50}
                     required
                   />
                 </div>
@@ -348,9 +368,10 @@ function NewRepair() {
                   <input
                     type="tel"
                     name="mobileNumber"
-                    placeholder="Enter 10-digit mobile number"
+                    placeholder="10-digit mobile number"
                     value={formData.mobileNumber}
-                    onChange={handleChange}
+                    onChange={handleMobileChange}
+                    maxLength={10}
                     required
                   />
                 </div>
@@ -367,6 +388,7 @@ function NewRepair() {
                     placeholder="TN 01 AB 1234"
                     value={formData.bikeNumber}
                     onChange={handleBikeNumberChange}
+                    maxLength={13}
                     required
                   />
                 </div>
@@ -382,6 +404,7 @@ function NewRepair() {
                     placeholder="e.g. Royal Enfield Classic 350 / Activa"
                     value={formData.bikeModel}
                     onChange={handleChange}
+                    maxLength={50}
                   />
                 </div>
               </div>
@@ -391,12 +414,12 @@ function NewRepair() {
                 <div className="input-with-icon">
                   <span className="field-icon">⏱️</span>
                   <input
-                    type="number"
+                    type="text"
                     name="odoMeter"
                     placeholder="e.g. 24500"
                     value={formData.odoMeter}
-                    onChange={handleChange}
-                    min="0"
+                    onChange={handleOdoMeterChange}
+                    maxLength={7}
                   />
                 </div>
               </div>
@@ -457,6 +480,7 @@ function NewRepair() {
                   placeholder="Detail any custom or lathe work..."
                   value={formData.otherWork}
                   onChange={handleChange}
+                  maxLength={100}
                 />
               </div>
             )}
@@ -481,6 +505,7 @@ function NewRepair() {
                     value={complaint}
                     placeholder={`e.g. ${index === 0 ? 'Engine noise on high speed or brake vibration' : 'Additional complaint description...'}`}
                     onChange={(e) => handleComplaintChange(index, e.target.value)}
+                    maxLength={150}
                   />
                   {formData.complaints.length > 1 && (
                     <button
@@ -576,82 +601,76 @@ function NewRepair() {
               </div>
             </div>
 
-            <div className="estimate-table-wrapper">
-              <table className="estimate-table">
-                <thead>
-                  <tr>
-                    <th>Service Category</th>
-                    <th>Spares (₹)</th>
-                    <th>Labour (₹)</th>
-                    <th className="text-right">Subtotal</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>
-                      <div className="category-title">General Service & Labour</div>
-                      <span className="category-sub">Standard servicing, water wash, and labour</span>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="serviceSpares"
-                        className="cost-input"
-                        placeholder="0"
-                        value={formData.serviceSpares}
-                        onChange={handleChange}
-                        min="0"
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="serviceLabour"
-                        className="cost-input"
-                        placeholder="0"
-                        value={formData.serviceLabour}
-                        onChange={handleChange}
-                        min="0"
-                      />
-                    </td>
-                    <td className="subtotal-cell text-right">
-                      <strong>₹{calculateServiceTotal()}</strong>
-                    </td>
-                  </tr>
+            <div className="estimate-cards-container">
+              {/* Category 1: General Service */}
+              <div className="cost-group-card">
+                <div className="cost-group-header">
+                  <div>
+                    <span className="group-name">🧰 General Service & Routine Labour</span>
+                    <p className="group-subtext">Standard servicing, water wash, and routine check</p>
+                  </div>
+                  <span className="group-subtotal">Subtotal: ₹{calculateServiceTotal()}</span>
+                </div>
+                <div className="cost-inputs-row">
+                  <div className="cost-field">
+                    <label>Spares (₹)</label>
+                    <input
+                      type="number"
+                      name="serviceSpares"
+                      placeholder="0"
+                      value={formData.serviceSpares}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+                  <div className="cost-field">
+                    <label>Labour (₹)</label>
+                    <input
+                      type="number"
+                      name="serviceLabour"
+                      placeholder="0"
+                      value={formData.serviceLabour}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
 
-                  <tr>
-                    <td>
-                      <div className="category-title">Additional Spares & Overhaul</div>
-                      <span className="category-sub">Extra spare replacements, lathe work, oil</span>
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="additionalSpares"
-                        className="cost-input"
-                        placeholder="0"
-                        value={formData.additionalSpares}
-                        onChange={handleChange}
-                        min="0"
-                      />
-                    </td>
-                    <td>
-                      <input
-                        type="number"
-                        name="additionalLabour"
-                        className="cost-input"
-                        placeholder="0"
-                        value={formData.additionalLabour}
-                        onChange={handleChange}
-                        min="0"
-                      />
-                    </td>
-                    <td className="subtotal-cell text-right">
-                      <strong>₹{calculateAdditionalTotal()}</strong>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              {/* Category 2: Additional Work */}
+              <div className="cost-group-card">
+                <div className="cost-group-header">
+                  <div>
+                    <span className="group-name">⚙️ Additional Repairs, Parts & Overhaul</span>
+                    <p className="group-subtext">Extra spare replacements, lathe work, oil & overhaul</p>
+                  </div>
+                  <span className="group-subtotal">Subtotal: ₹{calculateAdditionalTotal()}</span>
+                </div>
+                <div className="cost-inputs-row">
+                  <div className="cost-field">
+                    <label>Spares (₹)</label>
+                    <input
+                      type="number"
+                      name="additionalSpares"
+                      placeholder="0"
+                      value={formData.additionalSpares}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+                  <div className="cost-field">
+                    <label>Labour (₹)</label>
+                    <input
+                      type="number"
+                      name="additionalLabour"
+                      placeholder="0"
+                      value={formData.additionalLabour}
+                      onChange={handleChange}
+                      min="0"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="estimate-grand-banner">
@@ -728,9 +747,10 @@ function NewRepair() {
                 <input
                   type="text"
                   name="advanceNotes"
-                  placeholder="e.g. GPay UPI Ref #12345 or Cash received by Prem"
+                  placeholder="e.g. GPay UPI Ref #12345 or Cash received by Raja / Staff"
                   value={formData.advanceNotes}
                   onChange={handleChange}
+                  maxLength={100}
                   disabled={Number(formData.advanceAmount) <= 0}
                 />
               </div>
